@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mój portfel</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --line:#262a33; --txt:#e8eaee; --mut:#8a909c;
+    --acc:#f0b90b; --up:#2ecc71; --down:#ff5c5c; --r:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:820px;margin:0 auto;padding:14px 12px 60px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+  h1{font-size:20px;margin:0}
+  h2{font-size:15px;margin:22px 0 8px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .seg button{background:none;border:0;color:var(--mut);padding:6px 12px;font:inherit;cursor:pointer}
+  .seg button.on{background:var(--acc);color:#111;font-weight:600}
+  .big{font-size:30px;font-weight:700;letter-spacing:-.01em}
+  .row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .kv{min-width:120px}
+  .kv .k{color:var(--mut);font-size:12px}
+  .kv .v{font-weight:600;font-variant-numeric:tabular-nums}
+  .up{color:var(--up)} .down{color:var(--down)} .mut{color:var(--mut)}
+  .pos{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+  .pos:first-child{border-top:0}
+  .ico{width:32px;height:32px;border-radius:50%;background:#2a2f3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;overflow:hidden}
+  .ico img{width:100%;height:100%}
+  .nm{font-weight:600}
+  .sub{color:var(--mut);font-size:12.5px;font-variant-numeric:tabular-nums}
+  .rt{text-align:right;font-variant-numeric:tabular-nums}
+  .bar{height:3px;background:#2a2f3a;border-radius:2px;margin-top:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--acc)}
+  .details{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 12px;font-size:13px;background:#13161c;border-radius:8px;padding:10px}
+  form{display:grid;gap:10px}
+  label{font-size:12.5px;color:var(--mut);display:grid;gap:4px}
+  input,select{background:#0f1115;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:10px;font:inherit;width:100%}
+  input:focus,select:focus{outline:2px solid var(--acc);outline-offset:-1px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn{background:var(--acc);color:#111;border:0;border-radius:8px;padding:11px 14px;font:inherit;font-weight:700;cursor:pointer}
+  .btn.ghost{background:none;color:var(--txt);border:1px solid var(--line);font-weight:500}
+  .btn.sm{padding:6px 10px;font-size:13px}
+  .results{border:1px solid var(--line);border-radius:8px;max-height:260px;overflow:auto;display:none}
+  .results div{display:flex;gap:8px;align-items:center;padding:8px 10px;cursor:pointer;border-top:1px solid var(--line)}
+  .results div:first-child{border-top:0}
+  .results div:hover{background:#20242d}
+  .results img{width:20px;height:20px;border-radius:50%}
+  .chosen{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--acc);border-radius:8px}
+  table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  td,th{padding:7px 4px;border-top:1px solid var(--line);text-align:right}
+  th{color:var(--mut);font-weight:500;border-top:0}
+  td:first-child,th:first-child{text-align:left}
+  .tag{font-size:11px;padding:2px 6px;border-radius:5px;font-weight:700}
+  .tag.buy{background:#1c3a2a;color:var(--up)} .tag.sell{background:#3d1f22;color:var(--down)}
+  .x{background:none;border:0;color:var(--mut);cursor:pointer;font-size:15px;padding:2px 6px}
+  .x:hover{color:var(--txt)}
+  .status{font-size:12px;color:var(--mut);display:flex;gap:8px;align-items:center}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--mut)}
+  .dot.ok{background:var(--up)} .dot.err{background:var(--down)}
+  .empty{color:var(--mut);text-align:center;padding:20px 0}
+  .note{font-size:12px;color:var(--mut);margin-top:8px}
+  details summary{cursor:pointer;color:var(--mut);font-size:13px;margin-top:4px}
+  .tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+  .tabs button{flex:none;background:var(--card);border:1px solid var(--line);color:var(--mut);border-radius:999px;padding:7px 13px;font:inherit;font-size:14px;cursor:pointer}
+  .tabs button.on{border-color:var(--acc);color:var(--txt);font-weight:600}
+  .pftag{font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin-left:4px}
+  .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#2a2f3a;padding:10px 14px;border-radius:8px;font-size:14px;display:none;z-index:9}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:8}
+  .modal .card{max-width:360px;width:100%}
+  @media (max-width:520px){.big{font-size:26px}.hide-s{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Mój portfel</h1>
+    <div class="seg" id="curSeg"><button data-c="USD">USD</button><button data-c="PLN">PLN</button></div>
+  </header>
+  <div class="tabs" id="tabs"></div>
+
+  <div class="card">
+    <div class="mut" style="font-size:13px">Wartość teraz</div>
+    <div class="big" id="tVal">—</div>
+    <div class="row" style="margin-top:10px">
+      <div class="kv"><div class="k">Zainwestowane</div><div class="v" id="tCost">—</div></div>
+      <div class="kv"><div class="k">Zysk / strata</div><div class="v" id="tPL">—</div></div>
+      <div class="kv"><div class="k">Zmiana 24h</div><div class="v" id="t24">—</div></div>
+    </div>
+    <div class="row" style="margin-top:12px;align-items:center">
+      <div class="status"><span class="dot" id="dot"></span><span id="stat">Brak danych</span></div>
+      <button class="btn ghost sm" id="refresh">Odśwież ceny</button>
+    </div>
+  </div>
+
+  <div id="pfTools" class="note" style="margin-top:6px"></div>
+  <h2>Pozycje</h2>
+  <div class="card" id="positions"><div class="empty">Dodaj pierwszy zakup poniżej.</div></div>
+
+  <h2 id="formTitle">Dodaj transakcję</h2>
+  <div class="card">
+    <form id="txForm" autocomplete="off">
+      <div class="seg" id="typeSeg" style="justify-self:start"><button type="button" data-t="buy" class="on">Kupno</button><button type="button" data-t="sell">Sprzedaż</button></div>
+      <label>Aktywo (krypto lub akcja tokenizowana, np. „bitcoin”, „NVDA”, „Tesla xStock”)
+        <input id="q" placeholder="Szukaj…">
+      </label>
+      <div class="results" id="results"></div>
+      <div id="chosen"></div>
+      <details id="manualBox"><summary>Nie ma na liście? Dodaj aktywo z ręczną ceną</summary>
+        <div class="grid2" style="margin-top:8px">
+          <label>Symbol<input id="mSym" placeholder="np. XYZ"></label>
+          <label>Aktualna cena (USD)<input id="mPrice" type="number" step="any" min="0" inputmode="decimal"></label>
+        </div>
+        <button type="button" class="btn ghost sm" id="mUse" style="margin-top:8px">Użyj tego aktywa</button>
+      </details>
+      <div class="grid2">
+        <label>Ilość<input id="qty" type="number" step="any" min="0" inputmode="decimal" required></label>
+        <label>Cena za 1 szt.<input id="price" type="number" step="any" min="0" inputmode="decimal" required></label>
+      </div>
+      <div class="grid2">
+        <label>Waluta ceny<select id="cur"><option>USD</option><option>PLN</option></select></label>
+        <label>Data<input id="date" type="date"></label>
+      </div>
+      <label>Portfel<select id="pfSel"></select></label>
+      <label>Notatka (opcjonalnie)<input id="note" placeholder="np. OKX, Ledger"></label>
+      <div style="display:flex;gap:8px">
+        <button class="btn" type="submit" id="submitBtn" style="flex:1">Dodaj</button>
+        <button class="btn ghost" type="button" id="cancelEdit" style="display:none">Anuluj</button>
+      </div>
+      <div class="note" id="formMsg"></div>
+    </form>
+  </div>
+
+  <h2>Historia transakcji</h2>
+  <div class="card" style="overflow-x:auto" id="txList"><div class="empty">Brak transakcji.</div></div>
+
+  <h2>Ustawienia i kopia</h2>
+  <div class="card">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost sm" id="exp">Pobierz kopię (JSON)</button>
+      <button class="btn ghost sm" id="copy">Kopiuj kopię</button>
+      <label class="btn ghost sm" style="display:inline-block;color:var(--txt)">Wczytaj kopię<input type="file" id="imp" accept=".json,application/json" hidden></label>
+    </div>
+    <label style="margin-top:12px">Klucz CoinGecko Demo API (opcjonalny, większy limit zapytań)
+      <input id="apiKey" placeholder="CG-…">
+    </label>
+    <p class="note">Dane zapisują się tylko w tej przeglądarce na tym urządzeniu. Rób kopię co jakiś czas. Ceny: CoinGecko, odświeżanie co 2 min. Gdy kupujesz w PLN, a pokazujesz w USD (lub odwrotnie), koszt jest przeliczany po bieżącym kursie USD/PLN, więc to wartość przybliżona.</p>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="card"><div id="mText" style="margin-bottom:14px"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost sm" id="mNo">Anuluj</button><button class="btn sm" id="mYes">Usuń</button></div></div></div>
+<div class="modal" id="nModal"><div class="card"><div id="nText" style="margin-bottom:8px"></div>
+  <input id="nInput" maxlength="30" style="margin-bottom:14px">
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost sm" id="nNo">Anuluj</button><button class="btn sm" id="nYes">OK</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const API = 'https://api.coingecko.com/api/v3';
+  const KEY = 'portfel_v1';
+  const REFRESH_MS = 120000;
+  const $ = id => document.getElementById(id);
+
+  let S = { txs: [], cur: 'USD', apiKey: '', manual: {}, pfs: [{id:'p1', name:'Ledger'}, {id:'p2', name:'OKX'}], view: 'all' };
+  let prices = {};      // id -> {usd, pln, usd_24h_change}
+  let usdpln = null;
+  let chosen = null;    // {id,name,symbol,thumb}
+  let txType = 'buy';
+  let editId = null;
+  let openPos = null;
+
+  // ---------- storage ----------
+  function load(){ try{ const r = localStorage.getItem(KEY); if(r) S = Object.assign(S, JSON.parse(r)); }catch(e){} fixPfs(); }
+  function fixPfs(){
+    if(!Array.isArray(S.pfs) || !S.pfs.length) S.pfs = [{id:'p1', name:'Ledger'}, {id:'p2', name:'OKX'}];
+    S.txs.forEach(t => { if(!S.pfs.some(p => p.id === t.pf)) t.pf = S.pfs[0].id; });
+    if(S.view !== 'all' && !S.pfs.some(p => p.id === S.view)) S.view = 'all';
+  }
+  const vTxs = () => S.view === 'all' ? S.txs : S.txs.filter(t => t.pf === S.view);
+  const pfName = id => S.pfs.find(p => p.id === id)?.name || '?';
+  function askName(text, val){ return new Promise(res => { $('nText').textContent = text; $('nInput').value = val || ''; $('nModal').style.display = 'flex'; $('nInput').focus();
+    const done = v => { $('nModal').style.display = 'none'; res(v); };
+    $('nYes').onclick = () => done($('nInput').value.trim() || null); $('nNo').onclick = () => done(null);
+    $('nInput').onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); $('nYes').click(); } }; }); }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Nie mogę zapisać w przeglądarce, zrób kopię JSON'); } }
+
+  // ---------- helpers ----------
+  const fmtN = (n, d) => n.toLocaleString('pl-PL', {minimumFractionDigits:d, maximumFractionDigits:d});
+  function money(v){
+    if(v == null || isNaN(v)) return '—';
+    const a = Math.abs(v), d = a >= 1000 ? 0 : a >= 1 ? 2 : 4;
+    return (S.cur === 'USD' ? '$' : '') + fmtN(v, d) + (S.cur === 'PLN' ? ' zł' : '');
+  }
+  function priceFmt(v){
+    if(v == null || isNaN(v)) return '—';
+    const a = Math.abs(v), d = a >= 100 ? 2 : a >= 1 ? 3 : a >= 0.01 ? 4 : 8;
+    return (S.cur === 'USD' ? '$' : '') + fmtN(v, d) + (S.cur === 'PLN' ? ' zł' : '');
+  }
+  const qtyFmt = q => q.toLocaleString('pl-PL', {maximumFractionDigits:8});
+  const pct = v => (v == null || isNaN(v) || !isFinite(v)) ? '—' : (v >= 0 ? '+' : '') + fmtN(v, 2) + '%';
+  const cls = v => v > 0 ? 'up' : v < 0 ? 'down' : '';
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function toast(t){ const e = $('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => e.style.display = 'none', 2600); }
+  function confirmBox(text){ return new Promise(res => { $('mText').textContent = text; $('modal').style.display = 'flex';
+    $('mYes').onclick = () => { $('modal').style.display = 'none'; res(true); };
+    $('mNo').onclick = () => { $('modal').style.display = 'none'; res(false); }; }); }
+
+  // value in USD of an amount in given currency (uses current rate)
+  function toUSD(v, cur){ if(cur === 'USD') return v; return usdpln ? v / usdpln : null; }
+  function fromUSD(v){ if(v == null) return null; if(S.cur === 'USD') return v; return usdpln ? v * usdpln : null; }
+
+  function curPriceUSD(id){
+    if(id.startsWith('manual:')) return S.manual[id]?.usd ?? null;
+    return prices[id]?.usd ?? null;
+  }
+
+  // ---------- positions ----------
+  function computePositions(){
+    const map = {};
+    const sorted = [...vTxs()].sort((a, b) => (a.date || '').localeCompare(b.date || '') || a.ts - b.ts);
+    for(const t of sorted){
+      const p = map[t.coinId] ||= { id:t.coinId, name:t.name, symbol:t.symbol, thumb:t.thumb, qty:0, cost:0, realized:0, mixed:new Set() };
+      p.mixed.add(t.cur);
+      const pu = toUSD(t.price, t.cur);
+      if(pu == null){ p.noFx = true; continue; }
+      if(t.type === 'buy'){ p.qty += t.qty; p.cost += t.qty * pu; }
+      else {
+        const avg = p.qty > 0 ? p.cost / p.qty : 0;
+        const q = Math.min(t.qty, p.qty);
+        p.realized += q * (pu - avg);
+        p.cost -= avg * q; p.qty -= q;
+        if(p.qty < 1e-12){ p.qty = 0; p.cost = 0; }
+      }
+    }
+    const list = Object.values(map).map(p => {
+      const cp = curPriceUSD(p.id);
+      p.priceUSD = cp;
+      p.valueUSD = cp != null ? cp * p.qty : null;
+      p.plUSD = p.valueUSD != null ? p.valueUSD - p.cost : null;
+      p.plPct = p.cost > 0 && p.plUSD != null ? p.plUSD / p.cost * 100 : null;
+      p.ch24 = p.id.startsWith('manual:') ? null : prices[p.id]?.usd_24h_change ?? null;
+      p.avgUSD = p.qty > 0 ? p.cost / p.qty : null;
+      return p;
+    });
+    return list;
+  }
+
+  // ---------- render ----------
+  function render(){
+    document.querySelectorAll('#curSeg button').forEach(b => b.classList.toggle('on', b.dataset.c === S.cur));
+    renderTabs();
+    const all = computePositions();
+    const open = all.filter(p => p.qty > 0).sort((a, b) => (b.valueUSD ?? 0) - (a.valueUSD ?? 0));
+    const closed = all.filter(p => p.qty === 0 && p.realized !== 0);
+
+    let tv = 0, tc = 0, t24prev = 0, t24now = 0, missing = false;
+    for(const p of open){
+      tc += p.cost;
+      if(p.valueUSD == null){ missing = true; continue; }
+      tv += p.valueUSD;
+      if(p.ch24 != null){ t24now += p.valueUSD; t24prev += p.valueUSD / (1 + p.ch24 / 100); }
+    }
+    const realized = all.reduce((s, p) => s + p.realized, 0);
+    $('tVal').textContent = open.length ? money(fromUSD(tv)) + (missing ? ' *' : '') : '—';
+    $('tCost').textContent = open.length ? money(fromUSD(tc)) : '—';
+    const pl = tv - tc;
+    $('tPL').innerHTML = open.length ? `<span class="${cls(pl)}">${money(fromUSD(pl))} (${pct(tc ? pl / tc * 100 : null)})</span>` +
+      (realized ? `<div class="sub">zrealizowane: <span class="${cls(realized)}">${money(fromUSD(realized))}</span></div>` : '') : '—';
+    const ch = t24prev ? (t24now - t24prev) : null;
+    $('t24').innerHTML = ch != null ? `<span class="${cls(ch)}">${money(fromUSD(ch))} (${pct(ch / t24prev * 100)})</span>` : '—';
+
+    const box = $('positions');
+    if(!open.length && !closed.length){ box.innerHTML = '<div class="empty">Dodaj pierwszy zakup poniżej.</div>'; }
+    else {
+      box.innerHTML = open.map(p => {
+        const share = tv && p.valueUSD != null ? p.valueUSD / tv * 100 : 0;
+        const ico = p.thumb ? `<img src="${esc(p.thumb)}" alt="">` : esc((p.symbol || '?').slice(0, 4).toUpperCase());
+        const isOpen = openPos === p.id;
+        return `<div class="pos" data-id="${esc(p.id)}" style="cursor:pointer">
+          <div class="ico">${ico}</div>
+          <div><div class="nm">${esc(p.symbol.toUpperCase())} <span class="sub">${esc(p.name)}</span></div>
+            <div class="sub">${qtyFmt(p.qty)} szt. · ${priceFmt(fromUSD(p.priceUSD))}${p.ch24 != null ? ` <span class="${cls(p.ch24)}">${pct(p.ch24)}</span>` : ''}</div>
+            <div class="bar"><i style="width:${share.toFixed(1)}%"></i></div></div>
+          <div class="rt"><div class="nm">${money(fromUSD(p.valueUSD))}</div>
+            <div class="sub ${cls(p.plUSD)}">${money(fromUSD(p.plUSD))} · ${pct(p.plPct)}</div></div>
+          ${isOpen ? `<div class="details">
+            <div><div class="k mut">Średnia cena zakupu</div>${priceFmt(fromUSD(p.avgUSD))}</div>
+            <div><div class="k mut">Zainwestowane</div>${money(fromUSD(p.cost))}</div>
+            <div><div class="k mut">Udział w portfelu</div>${fmtN(share, 1)}%</div>
+            ${p.realized ? `<div><div class="k mut">Zysk zrealizowany</div><span class="${cls(p.realized)}">${money(fromUSD(p.realized))}</span></div>` : ''}
+            ${p.id.startsWith('manual:') ? `<div><button class="btn ghost sm" data-setprice="${esc(p.id)}">Zmień cenę ręczną</button></div>` : ''}
+            ${p.mixed.size > 1 || [...p.mixed][0] !== S.cur ? `<div class="mut" style="grid-column:1/-1">Koszt przeliczony po bieżącym kursie USD/PLN (przybliżenie).</div>` : ''}
+          </div>` : ''}
+        </div>`;
+      }).join('') + (closed.length ? `<div class="note">Zamknięte pozycje: ${closed.map(p => `${esc(p.symbol.toUpperCase())} <span class="${cls(p.realized)}">${money(fromUSD(p.realized))}</span>`).join(', ')}</div>` : '')
+        + (missing ? '<div class="note">* Brak aktualnej ceny dla części aktywów — nie są wliczone w wartość.</div>' : '');
+    }
+
+    const tl = $('txList');
+    if(!vTxs().length){ tl.innerHTML = '<div class="empty">Brak transakcji.</div>'; }
+    else {
+      const rows = [...vTxs()].sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.ts - a.ts).map(t => `<tr>
+        <td><span class="tag ${t.type}">${t.type === 'buy' ? 'K' : 'S'}</span> ${esc(t.symbol.toUpperCase())}${S.view === 'all' ? `<span class="pftag">${esc(pfName(t.pf))}</span>` : ''}<div class="sub">${esc(t.date || '')}${t.note ? ' · ' + esc(t.note) : ''}</div></td>
+        <td>${qtyFmt(t.qty)}</td>
+        <td class="hide-s">${fmtN(t.price, t.price >= 1 ? 2 : 6)} ${t.cur}</td>
+        <td>${fmtN(t.qty * t.price, 2)} ${t.cur}</td>
+        <td style="white-space:nowrap"><button class="x" data-edit="${t.id}" title="Edytuj">✎</button><button class="x" data-del="${t.id}" title="Usuń">✕</button></td>
+      </tr>`).join('');
+      tl.innerHTML = `<table><tr><th>Aktywo</th><th>Ilość</th><th class="hide-s">Cena</th><th>Wartość</th><th></th></tr>${rows}</table>`;
+    }
+    $('apiKey').value = S.apiKey || '';
+  }
+
+  function renderTabs(){
+    $('tabs').innerHTML = `<button data-v="all" class="${S.view === 'all' ? 'on' : ''}">Wszystkie</button>` +
+      S.pfs.map(p => `<button data-v="${esc(p.id)}" class="${S.view === p.id ? 'on' : ''}">${esc(p.name)}</button>`).join('') +
+      `<button data-v="+" title="Nowy portfel">＋</button>`;
+    $('pfTools').innerHTML = S.view === 'all' ? '' :
+      `<button class="btn ghost sm" id="pfRen">Zmień nazwę</button> <button class="btn ghost sm" id="pfDel">Usuń portfel</button>`;
+    const sel = $('pfSel'), keep = sel.value;
+    sel.innerHTML = S.pfs.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+    sel.value = editId ? keep : (S.view !== 'all' ? S.view : (S.pfs.some(p => p.id === keep) ? keep : S.pfs[0].id));
+  }
+  $('tabs').addEventListener('click', async e => {
+    const b = e.target.closest('button'); if(!b) return;
+    if(b.dataset.v === '+'){
+      const n = await askName('Nazwa nowego portfela'); if(!n) return;
+      const id = 'p' + Date.now(); S.pfs.push({ id, name: n }); S.view = id;
+    } else S.view = b.dataset.v;
+    openPos = null; save(); render();
+  });
+  $('pfTools').addEventListener('click', async e => {
+    const pf = S.pfs.find(p => p.id === S.view); if(!pf) return;
+    if(e.target.id === 'pfRen'){ const n = await askName('Nowa nazwa portfela', pf.name); if(n){ pf.name = n; save(); render(); } }
+    if(e.target.id === 'pfDel'){
+      if(S.pfs.length === 1){ toast('Musi zostać co najmniej jeden portfel'); return; }
+      const cnt = S.txs.filter(t => t.pf === pf.id).length;
+      if(await confirmBox(`Usunąć portfel „${pf.name}”${cnt ? ` razem z ${cnt} transakcjami` : ''}?`)){
+        S.txs = S.txs.filter(t => t.pf !== pf.id); S.pfs = S.pfs.filter(p => p !== pf); S.view = 'all'; save(); render();
+      }
+    }
+  });
+
+  // ---------- prices ----------
+  function withKey(url){ return S.apiKey ? url + (url.includes('?') ? '&' : '?') + 'x_cg_demo_api_key=' + encodeURIComponent(S.apiKey) : url; }
+  async function fetchPrices(){
+    const ids = [...new Set(S.txs.map(t => t.coinId).filter(id => !id.startsWith('manual:')))];
+    ids.push('tether');
+    setStat('', 'Pobieram ceny…');
+    try{
+      const r = await fetch(withKey(`${API}/simple/price?ids=${encodeURIComponent(ids.join(','))}&vs_currencies=usd,pln&include_24hr_change=true`));
+      if(r.status === 429) throw new Error('Limit zapytań CoinGecko — spróbuj za minutę albo dodaj klucz API');
+      if(!r.ok) throw new Error('CoinGecko zwrócił błąd ' + r.status);
+      const j = await r.json();
+      prices = Object.assign(prices, j);
+      const t = j.tether; if(t && t.usd && t.pln) usdpln = t.pln / t.usd;
+      setStat('ok', 'Ceny z ' + new Date().toLocaleTimeString('pl-PL', {hour:'2-digit', minute:'2-digit'}) + (usdpln ? ` · USD/PLN ≈ ${fmtN(usdpln, 3)}` : ''));
+    }catch(e){
+      setStat('err', e.message && !/fetch/i.test(e.message) ? e.message : 'Brak połączenia z CoinGecko');
+    }
+    render();
+  }
+  function setStat(k, t){ $('dot').className = 'dot ' + k; $('stat').textContent = t; }
+
+  // ---------- search ----------
+  let sTimer, sSeq = 0;
+  $('q').addEventListener('input', () => {
+    clearTimeout(sTimer);
+    const q = $('q').value.trim();
+    if(q.length < 2){ $('results').style.display = 'none'; return; }
+    sTimer = setTimeout(async () => {
+      const my = ++sSeq;
+      try{
+        const r = await fetch(withKey(`${API}/search?query=${encodeURIComponent(q)}`));
+        if(!r.ok) throw new Error(r.status);
+        const j = await r.json();
+        if(my !== sSeq) return;
+        const coins = (j.coins || []).slice(0, 15);
+        const box = $('results');
+        box.innerHTML = coins.length ? coins.map(c => `<div data-c='${esc(JSON.stringify({id:c.id, name:c.name, symbol:c.symbol, thumb:c.thumb}))}'>
+          ${c.thumb ? `<img src="${esc(c.thumb)}" alt="">` : ''}<b>${esc(c.symbol)}</b> <span class="mut">${esc(c.name)}</span>
+          ${c.market_cap_rank ? `<span class="mut" style="margin-left:auto">#${c.market_cap_rank}</span>` : ''}</div>`).join('')
+          : '<div class="mut" style="cursor:default">Nic nie znaleziono. Użyj ręcznej ceny poniżej.</div>';
+        box.style.display = 'block';
+      }catch(e){
+        $('results').innerHTML = '<div class="mut" style="cursor:default">Wyszukiwarka niedostępna (limit lub brak sieci). Spróbuj za chwilę.</div>';
+        $('results').style.display = 'block';
+      }
+    }, 350);
+  });
+  $('results').addEventListener('click', e => {
+    const d = e.target.closest('[data-c]'); if(!d) return;
+    choose(JSON.parse(d.dataset.c));
+  });
+  function choose(c){
+    chosen = c;
+    $('results').style.display = 'none'; $('q').value = '';
+    $('chosen').innerHTML = `<div class="chosen">${c.thumb ? `<img src="${esc(c.thumb)}" style="width:22px;height:22px;border-radius:50%" alt="">` : ''}
+      <b>${esc(c.symbol.toUpperCase())}</b> <span class="mut">${esc(c.name)}</span>
+      <button type="button" class="x" style="margin-left:auto" id="unchoose">✕</button></div>`;
+    $('unchoose').onclick = () => { chosen = null; $('chosen').innerHTML = ''; };
+  }
+  $('mUse').onclick = () => {
+    const sym = $('mSym').value.trim(); const pr = parseFloat($('mPrice').value);
+    if(!sym || !(pr >= 0)){ toast('Podaj symbol i cenę'); return; }
+    const id = 'manual:' + sym.toUpperCase();
+    S.manual[id] = { usd: pr }; save();
+    choose({ id, name:'ręczna cena', symbol:sym, thumb:'' });
+    $('manualBox').open = false;
+  };
+
+  // ---------- form ----------
+  $('typeSeg').addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    txType = b.dataset.t;
+    document.querySelectorAll('#typeSeg button').forEach(x => x.classList.toggle('on', x === b));
+  });
+  function resetForm(){
+    editId = null; chosen = null; $('chosen').innerHTML = '';
+    txType = 'buy'; document.querySelectorAll('#typeSeg button').forEach(x => x.classList.toggle('on', x.dataset.t === 'buy'));
+    $('qty').value = ''; $('price').value = ''; $('note').value = '';
+    $('date').value = new Date().toISOString().slice(0, 10);
+    $('submitBtn').textContent = 'Dodaj'; $('cancelEdit').style.display = 'none'; $('formTitle').textContent = 'Dodaj transakcję';
+    $('formMsg').textContent = '';
+  }
+  $('cancelEdit').onclick = resetForm;
+  $('txForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const qty = parseFloat($('qty').value), price = parseFloat($('price').value);
+    if(!chosen){ $('formMsg').textContent = 'Wybierz aktywo z listy (albo dodaj z ręczną ceną).'; return; }
+    if(!(qty > 0) || !(price >= 0)){ $('formMsg').textContent = 'Podaj ilość większą od zera i cenę.'; return; }
+    const tx = { id: editId || crypto.randomUUID?.() || String(Date.now() + Math.random()), ts: Date.now(),
+      coinId: chosen.id, name: chosen.name, symbol: chosen.symbol, thumb: chosen.thumb,
+      pf: $('pfSel').value, type: txType, qty, price, cur: $('cur').value, date: $('date').value, note: $('note').value.trim() };
+    if(editId){ const i = S.txs.findIndex(t => t.id === editId); if(i > -1){ tx.ts = S.txs[i].ts; S.txs[i] = tx; } }
+    else S.txs.push(tx);
+    const isNew = !prices[tx.coinId] && !tx.coinId.startsWith('manual:');
+    save(); toast(editId ? 'Zapisano zmiany' : 'Dodano'); resetForm(); render();
+    if(isNew) fetchPrices();
+  });
+
+  // ---------- list actions ----------
+  document.addEventListener('click', async e => {
+    const del = e.target.closest('[data-del]'), ed = e.target.closest('[data-edit]'),
+          sp = e.target.closest('[data-setprice]'), pos = e.target.closest('.pos');
+    if(del){
+      if(await confirmBox('Usunąć tę transakcję?')){ S.txs = S.txs.filter(t => t.id !== del.dataset.del); save(); render(); }
+    } else if(ed){
+      const t = S.txs.find(x => x.id === ed.dataset.edit); if(!t) return;
+      editId = t.id; choose({ id:t.coinId, name:t.name, symbol:t.symbol, thumb:t.thumb });
+      txType = t.type; document.querySelectorAll('#typeSeg button').forEach(x => x.classList.toggle('on', x.dataset.t === t.type));
+      $('pfSel').value = t.pf; $('qty').value = t.qty; $('price').value = t.price; $('cur').value = t.cur; $('date').value = t.date || ''; $('note').value = t.note || '';
+      $('submitBtn').textContent = 'Zapisz zmiany'; $('cancelEdit').style.display = ''; $('formTitle').textContent = 'Edytuj transakcję';
+      $('formTitle').scrollIntoView({ behavior:'smooth' });
+    } else if(sp){
+      e.stopPropagation();
+      $('mSym').value = sp.dataset.setprice.slice(7); $('mPrice').value = S.manual[sp.dataset.setprice]?.usd ?? '';
+      $('manualBox').open = true; $('formTitle').scrollIntoView({ behavior:'smooth' });
+      toast('Wpisz nową cenę i kliknij „Użyj tego aktywa”');
+    } else if(pos){
+      openPos = openPos === pos.dataset.id ? null : pos.dataset.id; render();
+    }
+  });
+
+  // ---------- currency / settings ----------
+  $('curSeg').addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    S.cur = b.dataset.c; save(); render();
+  });
+  $('refresh').onclick = fetchPrices;
+  $('apiKey').addEventListener('change', () => { S.apiKey = $('apiKey').value.trim(); save(); fetchPrices(); });
+
+  // ---------- backup ----------
+  const backup = () => JSON.stringify({ app:'portfel', v:1, saved:new Date().toISOString(), txs:S.txs, manual:S.manual, cur:S.cur, pfs:S.pfs }, null, 1);
+  $('exp').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([backup()], { type:'application/json' }));
+    a.download = 'portfel-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  $('copy').onclick = async () => { try{ await navigator.clipboard.writeText(backup()); toast('Skopiowano do schowka'); }catch(e){ toast('Schowek niedostępny — użyj „Pobierz kopię”'); } };
+  $('imp').addEventListener('change', async e => {
+    const f = e.target.files[0]; if(!f) return;
+    try{
+      const j = JSON.parse(await f.text());
+      if(!Array.isArray(j.txs)) throw 0;
+      if(S.txs.length && !(await confirmBox(`Zastąpić obecne ${S.txs.length} transakcji danymi z kopii (${j.txs.length})?`))) return;
+      S.txs = j.txs; S.manual = j.manual || {}; if(j.cur) S.cur = j.cur; if(Array.isArray(j.pfs)) S.pfs = j.pfs; fixPfs();
+      save(); render(); fetchPrices(); toast('Wczytano kopię');
+    }catch(err){ toast('To nie jest poprawny plik kopii'); }
+    e.target.value = '';
+  });
+
+  // ---------- init ----------
+  load(); resetForm(); render();
+  fetchPrices();
+  setInterval(() => { if(!document.hidden) fetchPrices(); }, REFRESH_MS);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) fetchPrices(); });
+})();
+</script>
+</body>
+</html>
